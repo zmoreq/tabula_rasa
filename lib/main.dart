@@ -1,66 +1,30 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
+//import 'package:google_fonts/google_fonts.dart';
+import 'util.dart';
+import 'theme.dart';
+import 'pages/cities_page.dart';
 
-void main(List<String> args) {
-  runApp(MyApp());
+// 1. START: Tu system "włącza" aplikację.
+void main() {
+  runApp(const MyApp());
 }
 
+// 2. MyApp: Główny widget aplikacji.
 class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider(
-      create: (context) => MyAppState(),
-      child: MaterialApp(
-        title: 'Flutter Demo',
-        theme: ThemeData(primarySwatch: Colors.blue),
-        home: MyHomePage(),
-      ),
-    );
-  }
-}
+    //final brightness = View.of(context).platformDispatcher.platformBrightness;
+    TextTheme textTheme = createTextTheme(context, 'Quicksand', 'Fredoka');
+    MaterialTheme theme = MaterialTheme(textTheme);
 
-class MyAppState extends ChangeNotifier {
-  var test = 0;
-
-  void addOne() {
-    test++;
-    notifyListeners();
-  }
-}
-
-class MyHomePage extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    var appState = context.watch<MyAppState>();
-    return Scaffold(
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text(
-              'You have pushed the button this many times:',
-              style: TextStyle(fontSize: 20),
-            ),
-            SizedBox(height: 10),
-            Text(
-              '${appState.test}',
-              style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
-            ),
-            SizedBox(height: 20),
-            ElevatedButton.icon(
-              onPressed: () {
-                appState.addOne();
-              },
-              icon: Icon(Icons.add, size: 30),
-              label: Text(
-                "CLICK!!!",
-                style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
-              ),
-              style: ElevatedButton.styleFrom(padding: EdgeInsets.all(25)),
-            ),
-          ],
-        ),
-      ),
+    return MaterialApp(
+      title: 'Simsly',
+      theme: theme.light(),
+      darkTheme: theme.dark(),
+      themeMode: ThemeMode.dark, // Użyj trybu systemowego (jasny/ciemny)
+      home: CitiesPage(),
     );
   }
 }
