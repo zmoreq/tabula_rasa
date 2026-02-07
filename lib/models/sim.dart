@@ -1,7 +1,31 @@
+import 'city.dart';
+import 'house.dart';
 class Sim {
   final String name;
   final String lastName;
   final int age;
+  final City city;
+  final House house;
 
-  Sim({required this.name, required this.lastName, required this.age});
+  Sim({required this.name, required this.lastName, required this.age, required this.city, required this.house });
+
+  Map<String, dynamic> toJson() {
+    return {
+      'name': name,
+      'lastName': lastName,
+      'age': age,
+      'city': city.name, // Zapisujemy tylko nazwę miasta
+      'house': house.name, // Zapisujemy tylko nazwę domu
+    };
+  }
+
+  factory Sim.fromJson(Map<String, dynamic> json, City city, House house) {
+    return Sim(
+      name: json['name'],
+      lastName: json['lastName'],
+      age: json['age'],
+      city: city,
+      house: house,
+    );
+  }
 }

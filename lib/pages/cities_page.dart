@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'dart:convert';
 import '../widgets/add_button.dart';
 import '../widgets/city_card.dart';
 import 'city_page.dart';
@@ -13,10 +15,80 @@ class CitiesPage extends StatefulWidget {
 }
 
 class _CitiesPageState extends State<CitiesPage> {
-  List<City> cities = [
-    City(name: "Płock", population: 52),
-  ];
+  List<City> cities = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _loadData();
+  }
   
+  Future<void> _loadData() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? citiesJson = prefs.getString('cities');
+    if (citiesJson != null) {
+      List<dynamic> citiesList = jsonDecode(citiesJson);
+      setState(() {
+        cities = citiesList.map((cityJson) => City.fromJson(cityJson)).toList();
+      });
+    }
+  }
+
+  Future<void> _saveData() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String citiesJson = jsonEncode(cities.map((city) => city.toJson()).toList());
+    await prefs.setString('cities', citiesJson);
+  }
+
+  void _deleteCity(City cityToDelete) {
+    setState(() {
+      cities.remove(cityToDelete);
+    });
+    _saveData();
+  }
+
+  Future<void> _showEditCityDialog(City city) async {
+    final TextEditingController nameController = TextEditingController(text: city.name);
+
+    final String? updatedName = await showDialog<String>(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Edytuj nazwę miasta'),
+          content: TextField(
+            controller: nameController,
+            autofocus: true,
+            decoration: InputDecoration(hintText: 'Nazwa miasta'),
+          ),
+          actions: [
+            TextButton(
+              child: Text('Anuluj'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                elevation: 0,
+              ),
+              onPressed: () {
+                Navigator.of(context).pop(nameController.text);
+              },
+              child: Text('Zapisz'),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (updatedName != null && updatedName.isNotEmpty) {
+      setState(() {
+        city.name = updatedName;
+      });
+      _saveData(); // Zapisz od razu po edycji
+    }
+  }
+
   Future<void> _showAddCityDialog() async {
     final TextEditingController nameController = TextEditingController();
 
@@ -55,6 +127,7 @@ class _CitiesPageState extends State<CitiesPage> {
       setState(() {
         cities.add(City(name: cityName, population: 0));
       });
+      _saveData(); // Zapisz od razu po dodaniu nowego miasta
     }
   }
 
@@ -112,9 +185,16 @@ class _CitiesPageState extends State<CitiesPage> {
                   onTap: () {
                     Navigator.of( context).push(
                       MaterialPageRoute(
-                        builder: (context) => CityPage(cityName: cityObject.name),
+                        builder: (context) => CityPage(city: cityObject,), 
                       ),
                     );
+                  },
+                  onDelete: () {
+                    _deleteCity(cityObject);
+                  },
+                  onEdit: () {
+                    // Przykładowa logika edycji - tutaj możesz dodać dialog do zmiany nazwy
+                    _showEditCityDialog(cityObject);
                   },
                 ),
                 SizedBox(height: 20),

@@ -5,51 +5,43 @@ import '../models/city.dart';
 class CityCard extends StatelessWidget {
   final City city;
   final VoidCallback? onTap;
+  final VoidCallback? onDelete;
+  final VoidCallback? onEdit;
 
   CityCard({
     required this.city,
-    this.onTap,
+    required this.onTap,
+    required this.onDelete,
+    required this.onEdit,
+
   });
 
 void _showCityOptions(BuildContext context) {
   showModalBottomSheet(
     context: context,
-    // Żeby panel miał zaokrąglone rogi na górze (jak Twoja karta)
     shape: const RoundedRectangleBorder(
       borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
     ),
     builder: (context) {
-      // SafeArea sprawia, że panel nie wejdzie na pasek nawigacji (ten na dole iPhone'a)
       return SafeArea(
-        child: Wrap( // Wrap dopasowuje wysokość do zawartości (nie zajmie całego ekranu)
+        child: Wrap(
           children: [
-            // Opcja 1: Edycja
+
             ListTile(
               leading: const Icon(Icons.edit),
               title: const Text('Edytuj nazwę'),
               onTap: () {
-                Navigator.of(context).pop(); // Zamykamy panel
-                print("Kliknięto Edytuj dla ${city.name}"); // Tu kiedyś będzie logika
+                Navigator.of(context).pop();
+                onEdit?.call();
               },
             ),
             
-            // Opcja 2: Statystyki
-            ListTile(
-              leading: const Icon(Icons.bar_chart),
-              title: const Text('Zobacz statystyki'),
-              onTap: () {
-                Navigator.of(context).pop();
-                print("Kliknięto Statystyki dla ${city.name}");
-              },
-            ),
-
-            // Opcja 3: Usuwanie (często daje się kolor czerwony)
             ListTile(
               leading: const Icon(Icons.delete, color: Colors.red),
               title: const Text('Usuń miasto', style: TextStyle(color: Colors.red)),
               onTap: () {
                 Navigator.of(context).pop();
-                print("Kliknięto Usuń dla ${city.name}");
+                onDelete?.call();
               },
             ),
           ],

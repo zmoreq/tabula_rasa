@@ -1,14 +1,28 @@
-import 'sim.dart';
+
+import 'house.dart';
 
 class City {
-  final String name;
+  String name;
   final int population;
 
-  List<Sim> residents = [];
+  List<House> houses = [];
 
-  City({required this.name , required this.population});
+  City({required this.name , required this.population, this.houses = const []});
 
-  void addResident(Sim sim) {
-    residents.add(sim);
+  Map<String, dynamic> toJson() {
+    return {
+      'name': name,
+      'population': population,
+      'houses': houses.map((house) => house.toJson()).toList(),
+    };
   }
+
+  factory City.fromJson(Map<String, dynamic> json) {
+    return City(
+      name: json['name'],
+      population: json['population'],
+      houses: (json['houses'] as List<dynamic>).map((houseJson) => House.fromJson(houseJson, City(name: json['name'], population: json['population']))).toList(),
+    );
+  }
+
 }
