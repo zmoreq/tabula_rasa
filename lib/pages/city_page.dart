@@ -6,10 +6,11 @@ import '../models/city.dart';
 import '../widgets/house_card.dart';
 
 class CityPage extends StatefulWidget {
-  final String cityName;
+  final City city;
+  String get cityName => city.name;
 
   CityPage({
-    required this.cityName,
+    required this.city,
   });
 
   @override
@@ -17,10 +18,11 @@ class CityPage extends StatefulWidget {
 }
 
 class _CityPageState extends State<CityPage> {
-  
 
   void _addHouse() {
-    // Tutaj dodaj logikę dodawania nowego domu do miasta
+    setState(() {
+      widget.city.houses.add(House(name: "Dom ${widget.city.houses.length + 1}", city: widget.city));
+    });
   }
 
   @override
@@ -56,6 +58,22 @@ class _CityPageState extends State<CityPage> {
               ),
 
               AddButton(onPressed: _addHouse, label: "Dodaj nowy dom"),
+              SizedBox(height: 20),
+              for (var houseObject in widget.city.houses) 
+                HouseCard(
+                  house: houseObject,
+                  onTap: () {
+                    print("Tapped on ${houseObject.name} in ${widget.cityName}");
+                  },
+                  onDelete: () {
+                    setState(() {
+                      widget.city.houses.remove(houseObject);
+                    });
+                  },
+                  onEdit: () {
+                    print("Edit ${houseObject.name} in ${widget.cityName}");
+                  },
+                ),
           ],
         ),
       ),

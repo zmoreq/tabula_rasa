@@ -4,16 +4,18 @@ import 'sim.dart';
 class House {
   String name;
   final City city;
+  int days;
   List<Sim> residents = [];
   int get population => residents.length;
 
-  House({required this.name, required this.city});
+  House({required this.name, required this.city, this.days = 0});
 
   Map<String, dynamic> toJson() {
     return {
       'name': name,
       'city': city.name, // Zapisujemy tylko nazwę miasta
       'residents': residents.map((sim) => sim.toJson()).toList(),
+      'days': days,
     };
   }
 
@@ -21,6 +23,7 @@ class House {
     House house = House(
       name: json['name'],
       city: city,
+      days: json['days'] ?? 0,
     );
     if (json['residents'] != null) {
       List<dynamic> residentsList = json['residents'];
