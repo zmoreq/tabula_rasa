@@ -2,10 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
-import '../widgets/add_button.dart';
+import '../widgets/add_text_button.dart';
 import '../widgets/city_card.dart';
 import 'city_page.dart';
 import '../models/city.dart';
+import '../widgets/sims_bottom_nav.dart'; // Importuj swoją nową nawigację
 
 class CitiesPage extends StatefulWidget {
   const CitiesPage({super.key});
@@ -16,11 +17,38 @@ class CitiesPage extends StatefulWidget {
 
 class _CitiesPageState extends State<CitiesPage> {
   List<City> cities = [];
+  int _selectedIndex = 0;
 
   @override
   void initState() {
     super.initState();
     _loadData();
+  }
+
+  _onTapped(int index) {
+    if (index == 2) {
+      _showAddCityDialog(); // Otwórz dialog dodawania miasta po kliknięciu plusa
+    } else {
+      setState(() {
+        _selectedIndex = index;
+      });
+    }
+    // Inne przyciski mogą być nieaktywne lub mieć inne funkcje, jeśli chcesz
+  }
+
+  Widget _buildBody() {
+    switch (_selectedIndex) {
+      case 0:
+        return _buildCityList(context); // Twój widok domów
+      case 1:
+        return Center(child: Text("Tutaj będą Statystyki"));
+      case 3:
+        return Center(child: Text("Tutaj będzie Generator"));
+      case 4:
+        return Center(child: Text("Tutaj będzie Kronika"));
+      default:
+        return _buildCityList(context);
+    }
   }
   
   Future<void> _loadData() async {
@@ -137,70 +165,69 @@ class _CitiesPageState extends State<CitiesPage> {
     return Scaffold(
       
       // --- GŁÓWNA ZAWARTOŚĆ (To Twoje płótno) ---
-      body: SingleChildScrollView(
-        child: Center(
-          // Column układa rzeczy jeden pod drugim (pionowo)
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.start, // Wyśrodkuj wszystko
-            children: [
-              
-              // TU DODAJESZ SWOJE ELEMENTY (Dzieci Kolumny):
-              SizedBox(height: 60),
-        
-              Text(
-                "Simsly",
-                style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 48,
-                  letterSpacing: 5.0,
-                )
+      body: _buildBody(),
+      bottomNavigationBar: SimsBottomNav(
+        currentIndex: _selectedIndex, // Na tej stronie zawsze podświetlony będzie pierwszy przycisk (Domy)
+        onTap: _onTapped, // Przekazujesz funkcję obsługującą kliknięcia
+      ),
+    );
+  }
+
+  Widget _buildCityList(BuildContext context) {
+    return SingleChildScrollView(
+      child: Center(
+        // Column układa rzeczy jeden pod drugim (pionowo)
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.start, // Wyśrodkuj wszystko
+          children: [
+            
+            // TU DODAJESZ SWOJE ELEMENTY (Dzieci Kolumny):
+            SizedBox(height: 60),
+      
+            Text(
+              "Simsly",
+              style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                fontWeight: FontWeight.bold,
+                fontSize: 48,
+                letterSpacing: 5.0,
+              )
+            ),
+      
+            Text("Zarządzaj swoją Simsową populacją",
+              style: GoogleFonts.quicksand(
+                fontSize: 16,
+                fontWeight: FontWeight.normal,
               ),
-        
-              Text("Zarządzaj swoją Simsową populacją",
-                style: GoogleFonts.quicksand(
-                  fontSize: 16,
-                  fontWeight: FontWeight.normal,
-                ),
-              ),
-              
-              Divider(
-                height: 60,
-                thickness: 2,
-                color: Theme.of(context).colorScheme.outline,
-                indent: 25,
-                endIndent: 25,
-              ),
-        
-              AddButton(
-                onPressed: () {
-                  _showAddCityDialog(); 
+            ),
+            
+            Divider(
+              height: 60,
+              thickness: 2,
+              color: Theme.of(context).colorScheme.outline,
+              indent: 25,
+              endIndent: 25,
+            ),
+      
+            for (var cityObject in cities) ...[
+              CityCard(city: cityObject, 
+                onTap: () {
+                  Navigator.of( context).push(
+                    MaterialPageRoute(
+                      builder: (context) => CityPage(city: cityObject,), 
+                    ),
+                  );
                 },
-                label: "Dodaj nowe miasto",
+                onDelete: () {
+                  _deleteCity(cityObject);
+                },
+                onEdit: () {
+                  // Przykładowa logika edycji - tutaj możesz dodać dialog do zmiany nazwy
+                  _showEditCityDialog(cityObject);
+                },
               ),
-        
-              SizedBox(height: 30),
-        
-              for (var cityObject in cities) ...[
-                CityCard(city: cityObject, 
-                  onTap: () {
-                    Navigator.of( context).push(
-                      MaterialPageRoute(
-                        builder: (context) => CityPage(city: cityObject,), 
-                      ),
-                    );
-                  },
-                  onDelete: () {
-                    _deleteCity(cityObject);
-                  },
-                  onEdit: () {
-                    // Przykładowa logika edycji - tutaj możesz dodać dialog do zmiany nazwy
-                    _showEditCityDialog(cityObject);
-                  },
-                ),
-                SizedBox(height: 20),
-              ],
+              SizedBox(height: 20),
             ],
-          ),
+          ],
         ),
       ),
     );
