@@ -1,13 +1,13 @@
 import 'city.dart';
 import 'house.dart';
-class Sim {
+class Resident {
   final String name;
   final String lastName;
   final int age;
   final City city;
   final House house;
 
-  Sim({required this.name, required this.lastName, required this.age, required this.city, required this.house });
+  Resident({required this.name, required this.lastName, required this.age, required this.city, required this.house });
 
   Map<String, dynamic> toJson() {
     return {
@@ -19,8 +19,8 @@ class Sim {
     };
   }
 
-  factory Sim.fromJson(Map<String, dynamic> json, City city, House house) {
-    return Sim(
+  factory Resident.fromJson(Map<String, dynamic> json, City city, House house) {
+    return Resident(
       name: json['name'],
       lastName: json['lastName'],
       age: json['age'],

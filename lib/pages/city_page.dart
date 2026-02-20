@@ -4,8 +4,10 @@ import 'package:phosphor_flutter/phosphor_flutter.dart'; // Pamiętaj o imporcie
 import '../models/house.dart';
 import '../models/city.dart';
 import '../widgets/house_card.dart';
-// import '../widgets/add_text_button.dart'; // To może być już niepotrzebne, skoro masz plusa na dole
-import '../widgets/sims_bottom_nav.dart'; // Importuj swoją nową nawigację
+import 'stats_page.dart';
+import 'generator_page.dart';
+import 'diary_page.dart';
+import '../widgets/bottom_nav.dart'; // Importuj swoją nową nawigację
 
 class CityPage extends StatefulWidget {
   final City city;
@@ -22,101 +24,129 @@ class CityPage extends StatefulWidget {
 class _CityPageState extends State<CityPage> {
   int _selectedIndex = 0; // 0: Domy, 1: Staty, 2: Plus, 3: Generator, 4: Kronika
 
-  void _addHouse() {
-    setState(() {
-      widget.city.houses.add(
-          House(name: "Dom ${widget.city.houses.length + 1}", city: widget.city));
-    });
-    // Opcjonalnie: Przełącz widok na listę domów po dodaniu
-    setState(() {
-      _selectedIndex = 0; 
-    });
-  }
-
-  // Funkcja obsługująca kliknięcia w pasek
-  void _onItemTapped(int index) {
-    if (index == 2) {
-      // --- LOGIKA ŚRODKOWEGO PRZYCISKU (PLUS) ---
-      // Tutaj wywołujemy akcję zamiast zmiany strony
-      _addHouse(); 
-      // W przyszłości tu dasz: _showAddOptions(context);
-    } else {
-      // --- LOGIKA POZOSTAŁYCH PRZYCISKÓW ---
-      setState(() {
-        _selectedIndex = index;
-      });
-    }
-  }
-
-  // To buduje wnętrze strony w zależności od wybranej zakładki
-  Widget _buildBody() {
-    switch (_selectedIndex) {
+  void _onTapped(int index) {
+    switch (index) {
       case 0:
-        return _buildHouseList(); // Twój widok domów
+        Navigator.of(context).popUntil((route) => route.isFirst);
       case 1:
-        return Center(child: Text("Tutaj będą Statystyki"));
+        Navigator.of(context).push(
+          MaterialPageRoute(
+            builder: (context) => StatsPage(isGlobal: true, returnRoute: "/city"),
+          ),
+        );
+      case 2:
+        _showAddHouseDialog();
       case 3:
-        return Center(child: Text("Tutaj będzie Generator"));
+        Navigator.of(context).push(
+           MaterialPageRoute(builder: (context) => GeneratorPage(returnRoute: "/city")),
+        );
       case 4:
-        return Center(child: Text("Tutaj będzie Kronika"));
-      default:
-        return _buildHouseList();
+        Navigator.of(context).push(
+           MaterialPageRoute(builder: (context) => DiaryPage(returnRoute: "/city")),
+        );
     }
   }
+
+    void _showAddHouseDialog() {
+      showDialog(
+        context: context,
+        builder: (context) {
+          String houseName = "";
+          return AlertDialog(
+            title: Text("Dodaj nowy dom"),
+            content: TextField(
+              onChanged: (value) {
+                houseName = value;
+              },
+              decoration: InputDecoration(hintText: "Nazwa domu"),
+            ),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+                child: Text("Anuluj"),
+              ),
+              ElevatedButton(
+                onPressed: () {
+                  if (houseName.trim().isNotEmpty) {
+                    setState(() {
+                      widget.city.houses.add(House(name: houseName, city: widget.city));
+                    });
+                  }
+                  Navigator.of(context).pop();
+                },
+                child: Text("Dodaj"),
+              ),
+            ],
+          );
+        },
+      );
+    }
 
   // Wydzieliłem Twój stary widok do osobnej metody dla czystości
   Widget _buildHouseList() {
     return SingleChildScrollView( // Dodałem scrolla, żeby lista nie ucięła się na dole
-      child: Center(
-        child: Column(
-          children: [
-            SizedBox(height: 20), // Odstęp od góry
-            Text(
-              widget.cityName,
-              style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 48,
-                    letterSpacing: 5.0,
-                  ),
+      child: Column(
+        children: [
+          Container(
+            width: double.infinity, // 1. Rozciągnij na całą szerokość
+          padding: EdgeInsets.only(
+            top: 20, 
+            bottom: 40, // Dużo miejsca na dole, żeby zaokrąglenie ładnie wyglądało
+            left: 20, 
+            right: 20
+          ),
+          decoration: BoxDecoration(
+            // 2. Kolor tła (np. surfaceContainerHigh albo primaryContainer)
+            color: Theme.of(context).colorScheme.primaryContainer,
+            // 3. Zaokrąglenie TYLKO na dole
+            borderRadius: BorderRadius.vertical(
+              bottom: Radius.circular(32),
             ),
-            Text(
-              "Tutaj możesz zarządzać swoim miastem",
-              style: GoogleFonts.quicksand(
-                fontSize: 16,
-                fontWeight: FontWeight.normal,
-              ),
-            ),
-            Divider(
-              height: 60,
-              thickness: 2,
-              color: Theme.of(context).colorScheme.outline,
-              indent: 25,
-              endIndent: 25,
-            ),
-            // Usunąłem AddButton stąd, bo masz go teraz w pasku na dole!
-            
-            // Pętla wyświetlająca domy
-            for (var houseObject in widget.city.houses)
-              Padding(
-                padding: const EdgeInsets.only(bottom: 10.0), // Odstęp między kartami
-                child: HouseCard(
-                  house: houseObject,
-                  onTap: () {
-                    print("Tapped on ${houseObject.name}");
-                  },
-                  onDelete: () {
-                    setState(() {
-                      widget.city.houses.remove(houseObject);
-                    });
-                  },
-                  onEdit: () {
-                    print("Edit ${houseObject.name}");
-                  },
+          ),
+            child: Column(
+              children: [
+                Text(
+                  widget.cityName,
+                  style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 48,
+                        letterSpacing: 5.0,
+                      ),
                 ),
+                Text(
+                  "Tutaj możesz zarządzać swoim miastem",
+                  style: GoogleFonts.quicksand(
+                    fontSize: 16,
+                    fontWeight: FontWeight.normal,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          SizedBox(height: 20),
+          // Pętla wyświetlająca domy
+          for (var houseObject in widget.city.houses)
+            Padding(
+              padding: const EdgeInsets.only(bottom: 10.0), // Odstęp między kartami
+              child: HouseCard(
+                house: houseObject,
+                onTap: () {
+                  print("Tapped on ${houseObject.name}");
+                },
+                onDelete: () {
+                  setState(() {
+                    widget.city.houses.remove(houseObject);
+                  });
+                },
+                onEdit: () {
+                  print("Edit ${houseObject.name}");
+                },
               ),
-             SizedBox(height: 80), // Ważne: Pusty odstęp na dole, żeby ostatni dom nie chował się za czymś
-          ],
-        ),
+            ),
+           SizedBox(height: 80), // Ważne: Pusty odstęp na dole, żeby ostatni dom nie chował się za czymś
+        ],
       ),
     );
   }
@@ -126,6 +156,7 @@ class _CityPageState extends State<CityPage> {
     return Scaffold(
       // AppBar może zostać pusty lub z ustawieniami
       appBar: AppBar(
+        backgroundColor: Theme.of(context).colorScheme.primaryContainer,
         actions: [
           IconButton(
             icon: Icon(PhosphorIcons.gear(
@@ -136,12 +167,12 @@ class _CityPageState extends State<CityPage> {
         ],
       ),
       
-      body: _buildBody(), // Wyświetlamy odpowiedni ekran
+      body: _buildHouseList(), // Wyświetlamy odpowiedni ekran
 
       // --- TUTAJ JEST TWOJA NOWA NAWIGACJA ---
-      bottomNavigationBar: SimsBottomNav(
+      bottomNavigationBar: CustomBottomNav(
         currentIndex: _selectedIndex,
-        onTap: _onItemTapped, // Przekazujesz funkcję z CityPage
+        onTap: _onTapped, // Przekazujesz funkcję z CityPage
       ),
     );
   }

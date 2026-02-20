@@ -1,11 +1,11 @@
 import 'city.dart';
-import 'sim.dart';
+import 'resident.dart';
 
 class House {
   String name;
   final City city;
   int days;
-  List<Sim> residents = [];
+  List<Resident> residents = [];
   int get population => residents.length;
 
   House({required this.name, required this.city, this.days = 0});
@@ -14,7 +14,7 @@ class House {
     return {
       'name': name,
       'city': city.name, // Zapisujemy tylko nazwę miasta
-      'residents': residents.map((sim) => sim.toJson()).toList(),
+      'residents': residents.map((resident) => resident.toJson()).toList(),
       'days': days,
     };
   }
@@ -27,16 +27,25 @@ class House {
     );
     if (json['residents'] != null) {
       List<dynamic> residentsList = json['residents'];
-      house.residents = residentsList.map((simJson) => Sim.fromJson(simJson, city, house)).toList();
+      house.residents = residentsList.map((residentJson) => Resident.fromJson(residentJson, city, house)).toList();
     }
     return house;
   }
 
-  void addResident(Sim sim) {
-    residents.add(sim);
+  void addResident(Resident resident) {
+    residents.add(resident);
   }
   
-  void removeResident(Sim sim) {
-    residents.remove(sim);
+  void removeResident(Resident resident) {
+    residents.remove(resident);
   }
+
+  List<Resident> getResidents() {
+    return residents;
+  }
+
+  List<Resident> getResidentsByAge(int age) {
+    return residents.where((resident) => resident.age == age).toList();
+  }
+
 }

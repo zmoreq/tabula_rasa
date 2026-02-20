@@ -2,11 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
-import '../widgets/add_text_button.dart';
 import '../widgets/city_card.dart';
 import 'city_page.dart';
 import '../models/city.dart';
-import '../widgets/sims_bottom_nav.dart'; // Importuj swoją nową nawigację
+import '../widgets/bottom_nav.dart'; // Importuj swoją nową nawigację
+import 'stats_page.dart';
+import 'generator_page.dart';
+import 'diary_page.dart';
+
 
 class CitiesPage extends StatefulWidget {
   const CitiesPage({super.key});
@@ -17,7 +20,6 @@ class CitiesPage extends StatefulWidget {
 
 class _CitiesPageState extends State<CitiesPage> {
   List<City> cities = [];
-  int _selectedIndex = 0;
 
   @override
   void initState() {
@@ -25,30 +27,38 @@ class _CitiesPageState extends State<CitiesPage> {
     _loadData();
   }
 
-  _onTapped(int index) {
-    if (index == 2) {
-      _showAddCityDialog(); // Otwórz dialog dodawania miasta po kliknięciu plusa
-    } else {
-      setState(() {
-        _selectedIndex = index;
-      });
+  void _onTapped(int index) {
+    switch (index) {
+      case 0:
+        break;
+      case 1:
+        Navigator.of(context).push(
+          MaterialPageRoute(
+            builder: (context) => StatsPage(isGlobal: true, returnRoute: "/cities"),
+          ),
+        );
+      case 2:
+        _showAddCityDialog();
+      case 3:
+        Navigator.of(context).push(
+           MaterialPageRoute(builder: (context) => GeneratorPage(returnRoute: "/cities")),
+        );
+      case 4:
+        Navigator.of(context).push(
+           MaterialPageRoute(builder: (context) => DiaryPage(returnRoute: "/cities")),
+        );
     }
-    // Inne przyciski mogą być nieaktywne lub mieć inne funkcje, jeśli chcesz
   }
 
-  Widget _buildBody() {
-    switch (_selectedIndex) {
-      case 0:
-        return _buildCityList(context); // Twój widok domów
-      case 1:
-        return Center(child: Text("Tutaj będą Statystyki"));
-      case 3:
-        return Center(child: Text("Tutaj będzie Generator"));
-      case 4:
-        return Center(child: Text("Tutaj będzie Kronika"));
-      default:
-        return _buildCityList(context);
-    }
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: _buildCityList(context), // Po prostu wyświetlamy listę, bez switcha!
+      bottomNavigationBar: CustomBottomNav(
+        currentIndex: 0, // Tu zawsze jesteśmy na "0" (Główna)
+        onTap: _onTapped,
+      ),
+    );
   }
   
   Future<void> _loadData() async {
@@ -159,19 +169,6 @@ class _CitiesPageState extends State<CitiesPage> {
     }
   }
 
-  @override
-  Widget build(BuildContext context) {
-    // SCAFFOLD: To "Rusztowanie". Daje Ci dach (AppBar), podłogę i miejsce na treść.
-    return Scaffold(
-      
-      // --- GŁÓWNA ZAWARTOŚĆ (To Twoje płótno) ---
-      body: _buildBody(),
-      bottomNavigationBar: SimsBottomNav(
-        currentIndex: _selectedIndex, // Na tej stronie zawsze podświetlony będzie pierwszy przycisk (Domy)
-        onTap: _onTapped, // Przekazujesz funkcję obsługującą kliknięcia
-      ),
-    );
-  }
 
   Widget _buildCityList(BuildContext context) {
     return SingleChildScrollView(
@@ -213,7 +210,8 @@ class _CitiesPageState extends State<CitiesPage> {
                 onTap: () {
                   Navigator.of( context).push(
                     MaterialPageRoute(
-                      builder: (context) => CityPage(city: cityObject,), 
+                      builder: (context) => CityPage(city: cityObject),
+                      settings: RouteSettings(name: "/city"), // Ustawiamy nazwę trasy na unikalną dla tego miasta 
                     ),
                   );
                 },

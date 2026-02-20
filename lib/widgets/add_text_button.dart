@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 
-class AddButton extends StatelessWidget {
+class TextAddButon extends StatelessWidget {
   final VoidCallback onPressed;
   final String label;
 
-  AddButton({
+  TextAddButon({
     required this.onPressed,
     required this.label,
   });
