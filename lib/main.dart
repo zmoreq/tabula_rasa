@@ -24,7 +24,10 @@ class MyApp extends StatelessWidget {
       theme: theme.light(),
       darkTheme: theme.dark(),
       themeMode: ThemeMode.dark, // Użyj trybu systemowego (jasny/ciemny)
-      home: CitiesPage(),
+      initialRoute: "/",
+      routes: {
+        "/": (context) => const CitiesPage(),
+      },
     );
   }
 }

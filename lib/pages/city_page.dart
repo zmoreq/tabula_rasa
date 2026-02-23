@@ -8,6 +8,7 @@ import 'stats_page.dart';
 import 'generator_page.dart';
 import 'diary_page.dart';
 import '../widgets/bottom_nav.dart'; // Importuj swoją nową nawigację
+import 'house_page.dart';
 
 class CityPage extends StatefulWidget {
   final City city;
@@ -99,7 +100,7 @@ class _CityPageState extends State<CityPage> {
           ),
           decoration: BoxDecoration(
             // 2. Kolor tła (np. surfaceContainerHigh albo primaryContainer)
-            color: Theme.of(context).colorScheme.primaryContainer,
+            color: Theme.of(context).colorScheme.onPrimary,
             // 3. Zaokrąglenie TYLKO na dole
             borderRadius: BorderRadius.vertical(
               bottom: Radius.circular(32),
@@ -125,25 +126,27 @@ class _CityPageState extends State<CityPage> {
               ],
             ),
           ),
-          SizedBox(height: 20),
+          SizedBox(height: 15),
           // Pętla wyświetlająca domy
           for (var houseObject in widget.city.houses)
-            Padding(
-              padding: const EdgeInsets.only(bottom: 10.0), // Odstęp między kartami
-              child: HouseCard(
-                house: houseObject,
-                onTap: () {
-                  print("Tapped on ${houseObject.name}");
-                },
-                onDelete: () {
-                  setState(() {
-                    widget.city.houses.remove(houseObject);
-                  });
-                },
-                onEdit: () {
-                  print("Edit ${houseObject.name}");
-                },
-              ),
+            HouseCard(
+              house: houseObject,
+              onTap: () {
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (context) => HousePage(house: houseObject),
+                    settings: RouteSettings(name: "/house"), // Ustawiamy nazwę trasy na unikalną dla tego domu 
+                  ),
+                );
+              },
+              onDelete: () {
+                setState(() {
+                  widget.city.houses.remove(houseObject);
+                });
+              },
+              onEdit: () {
+                print("Edit ${houseObject.name}");
+              },
             ),
            SizedBox(height: 80), // Ważne: Pusty odstęp na dole, żeby ostatni dom nie chował się za czymś
         ],
@@ -156,7 +159,7 @@ class _CityPageState extends State<CityPage> {
     return Scaffold(
       // AppBar może zostać pusty lub z ustawieniami
       appBar: AppBar(
-        backgroundColor: Theme.of(context).colorScheme.primaryContainer,
+        backgroundColor: Theme.of(context).colorScheme.onPrimary,
         actions: [
           IconButton(
             icon: Icon(PhosphorIcons.gear(

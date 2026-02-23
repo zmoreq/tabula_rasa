@@ -50,7 +50,14 @@ class _GeneratorPageState extends State<GeneratorPage> {
         if (didPop) {
           return; // Pozwól na normalne zachowanie przycisku "wstecz"
         }
-        Navigator.of(context).popUntil(ModalRoute.withName(widget.returnRoute));
+        if (widget.returnRoute == "/") {
+          Navigator.of(context).pushAndRemoveUntil(
+            MaterialPageRoute(builder: (context) => CitiesPage()),
+            (route) => false, // Usuwa wszystkie poprzednie strony z stosu
+          );
+        } else {
+          Navigator.of(context).popUntil(ModalRoute.withName(widget.returnRoute)); // Inaczej szukaj po etykiecie
+        }
       },
       child: Scaffold(
         appBar: AppBar(title: Text("Generator")),

@@ -48,4 +48,14 @@ class House {
     return residents.where((resident) => resident.age == age).toList();
   }
 
+  void incrementDays() {
+    days++;
+  }
+
+  void decrementDays() {
+    if (days > 0) {
+      days--;
+    }
+  }
+
 }

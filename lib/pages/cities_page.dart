@@ -34,18 +34,19 @@ class _CitiesPageState extends State<CitiesPage> {
       case 1:
         Navigator.of(context).push(
           MaterialPageRoute(
-            builder: (context) => StatsPage(isGlobal: true, returnRoute: "/cities"),
+            
+            builder: (context) => StatsPage(isGlobal: true, returnRoute: "/"),
           ),
         );
       case 2:
         _showAddCityDialog();
       case 3:
         Navigator.of(context).push(
-           MaterialPageRoute(builder: (context) => GeneratorPage(returnRoute: "/cities")),
+           MaterialPageRoute(builder: (context) => GeneratorPage(returnRoute: "/")),
         );
       case 4:
         Navigator.of(context).push(
-           MaterialPageRoute(builder: (context) => DiaryPage(returnRoute: "/cities")),
+           MaterialPageRoute(builder: (context) => DiaryPage(returnRoute: "/")),
         );
     }
   }
