@@ -1,18 +1,28 @@
+import 'sim_traits.dart';
 import 'city.dart';
 import 'house.dart';
 
 class Resident {
-  final String name;
-  final String lastName;
+  String name;
+  String lastName;
 
   int age;
   int days;
 
   final City city;
   final House house;
-  final String aspiration;
 
-  Resident({required this.name, required this.lastName, required this.age, this.days = 0, required this.city, required this.house, this.aspiration = "Nieznana"});
+  SimTraits traits;
+
+  Resident({
+    required this.name,
+    required this.lastName,
+    required this.age,
+    this.days = 0,
+    required this.city,
+    required this.house,
+    SimTraits? traits,
+  }) : traits = traits ?? SimTraits();
 
   Map<String, dynamic> toJson() {
     return {
@@ -21,8 +31,8 @@ class Resident {
       'age': age,
       'days': days,
       'city': city.name, // Zapisujemy tylko nazwę miasta
-      'house': house.name, // Zapisujemy tylko nazwę domu
-      'aspiration': aspiration,
+      'house': house.name,
+      'traits': traits.toJson(),
     };
   }
 
@@ -34,7 +44,7 @@ class Resident {
       days: json['days'],
       city: city,
       house: house,
-      aspiration: json['aspiration'],
+      traits: json['traits'] != null ? SimTraits.fromJson(json['traits']) : SimTraits(),
     );
   }
 

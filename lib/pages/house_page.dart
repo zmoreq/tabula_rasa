@@ -9,6 +9,7 @@ import '../widgets/bottom_nav.dart';
 import '../widgets/resident_tile.dart';
 import '../models/resident.dart';
 import '../services/data_service.dart';
+import '../widgets/resident_edit_dialog.dart';
 
 class HousePage extends StatefulWidget {
   final House house;
@@ -268,8 +269,15 @@ class _HousePageState extends State<HousePage> {
           for (var residentObject in widget.house.residents)
             ResidentTile(
               resident: residentObject,
-              onTap: () {
-                // Tu możesz dodać logikę do wyświetlania szczegółów mieszkańca
+              onTap: () async {
+                final bool? didSave = await showDialog<bool>(
+                  context: context,
+                  builder: (context) => ResidentEditDialog(resident: residentObject),
+                );
+                if (didSave == true) {
+                  setState(() {});
+                  DataService.saveData();
+                }
               },
               onDelete: () {
                 setState(() {

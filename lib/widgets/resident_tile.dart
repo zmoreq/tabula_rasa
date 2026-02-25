@@ -47,7 +47,7 @@ class ResidentTile extends StatelessWidget {
           ),
         ),
         subtitle: Text(
-          "${resident.isAdult() ? "Dorosły" : "Dziecko"}  •  ${resident.age} lat  •  ${resident.aspiration}",
+          "${resident.isAdult() ? "Dorosły" : "Dziecko"}  •  ${resident.age} lat  •  ${resident.traits.aspiration}",
           style: GoogleFonts.quicksand(
             fontSize: 14,
             color: Theme.of(context).colorScheme.onSurfaceVariant,
