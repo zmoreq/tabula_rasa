@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:namer_app/services/data_service.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
 import '../models/house.dart';
 import '../models/city.dart';
@@ -112,6 +113,7 @@ class _CityPageState extends State<CityPage> {
         setState(() {
           widget.city.addHouse(House(name: houseName, city: widget.city));
         });
+        DataService.saveData(); // Zapisz zmiany po dodaniu domu
       }
     }
     
@@ -174,6 +176,7 @@ class _CityPageState extends State<CityPage> {
                 setState(() {
                   widget.city.removeHouse(houseObject);
                 });
+                DataService.saveData(); // Zapisz zmiany po usunięciu domu
               },
               onEdit: () {
                 print("Edit ${houseObject.name}");

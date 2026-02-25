@@ -1,14 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'dart:convert';
 import '../widgets/city_card.dart';
 import 'city_page.dart';
 import '../models/city.dart';
-import '../widgets/bottom_nav.dart'; // Importuj swoją nową nawigację
+import '../widgets/bottom_nav.dart';
 import 'stats_page.dart';
 import 'generator_page.dart';
 import 'diary_page.dart';
+import '../services/data_service.dart';
 
 
 class CitiesPage extends StatefulWidget {
@@ -19,12 +18,13 @@ class CitiesPage extends StatefulWidget {
 }
 
 class _CitiesPageState extends State<CitiesPage> {
-  List<City> cities = [];
 
   @override
   void initState() {
     super.initState();
-    _loadData();
+    DataService.loadData().then((_) {
+      setState(() {});
+    });
   }
 
   void _onTapped(int index) {
@@ -62,28 +62,13 @@ class _CitiesPageState extends State<CitiesPage> {
     );
   }
   
-  Future<void> _loadData() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    String? citiesJson = prefs.getString('cities');
-    if (citiesJson != null) {
-      List<dynamic> citiesList = jsonDecode(citiesJson);
-      setState(() {
-        cities = citiesList.map((cityJson) => City.fromJson(cityJson)).toList();
-      });
-    }
-  }
 
-  Future<void> _saveData() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    String citiesJson = jsonEncode(cities.map((city) => city.toJson()).toList());
-    await prefs.setString('cities', citiesJson);
-  }
 
   void _deleteCity(City cityToDelete) {
     setState(() {
-      cities.remove(cityToDelete);
+      DataService.cities.remove(cityToDelete);
     });
-    _saveData();
+    DataService.saveData(); // Zapisz zmiany po usunięciu miasta
   }
 
   Future<void> _showEditCityDialog(City city) async {
@@ -124,7 +109,7 @@ class _CitiesPageState extends State<CitiesPage> {
       setState(() {
         city.name = updatedName;
       });
-      _saveData(); // Zapisz od razu po edycji
+      DataService.saveData(); // Zapisz od razu po edycji
     }
   }
 
@@ -190,9 +175,9 @@ class _CitiesPageState extends State<CitiesPage> {
 
     if (cityName != null && cityName.isNotEmpty) {
       setState(() {
-        cities.add(City(name: cityName, population: 0));
+        DataService.cities.add(City(name: cityName, population: 0));
       });
-      _saveData(); // Zapisz od razu po dodaniu nowego miasta
+      DataService.saveData(); // Zapisz od razu po dodaniu nowego miasta
     }
   }
 
@@ -232,7 +217,7 @@ class _CitiesPageState extends State<CitiesPage> {
               endIndent: 25,
             ),
       
-            for (var cityObject in cities) ...[
+            for (var cityObject in DataService.cities) ...[
               CityCard(city: cityObject, 
                 onTap: () {
                   Navigator.of( context).push(

@@ -8,6 +8,7 @@ import 'diary_page.dart';
 import '../widgets/bottom_nav.dart';
 import '../widgets/resident_tile.dart';
 import '../models/resident.dart';
+import '../services/data_service.dart';
 
 class HousePage extends StatefulWidget {
   final House house;
@@ -146,6 +147,7 @@ class _HousePageState extends State<HousePage> {
           ),
         );
       });
+      DataService.saveData(); // Zapisz zmiany po dodaniu mieszkańca
     }
   }
 
@@ -196,7 +198,11 @@ class _HousePageState extends State<HousePage> {
                       onPressed: () {
                         setState(() {
                           widget.house.decrementDays();
+                          for (var resident in widget.house.residents) {
+                            resident.decrementDays();
+                          }
                         });
+                        DataService.saveData(); // Zapisz zmiany po dekrementacji dni
                       },
                     ),
                     Column(
@@ -240,6 +246,7 @@ class _HousePageState extends State<HousePage> {
                             resident.incrementDays();
                           }
                         });
+                        DataService.saveData(); // Zapisz zmiany po inkrementacji dni
                       },
                     ),
                   ],
@@ -268,6 +275,7 @@ class _HousePageState extends State<HousePage> {
                 setState(() {
                   widget.house.removeResident(residentObject);
                 });
+                DataService.saveData(); // Zapisz zmiany po usunięciu mieszkańca
               },
             ),
            SizedBox(height: 80), // Ważne: Pusty odstęp na dole, żeby ostatni mieszkaniec nie chował się za czymś

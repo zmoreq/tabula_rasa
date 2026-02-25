@@ -49,4 +49,13 @@ class Resident {
       days = 0;
     }
   }
+
+  void decrementDays() {
+    if (days > 0) {
+      days--;
+    } else if (age > 0) {
+      age--;
+      days = 3; // Cofamy do ostatniego dnia poprzedniego roku
+    }
+  }
 }
