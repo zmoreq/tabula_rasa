@@ -35,7 +35,14 @@ class _HousePageState extends State<HousePage> {
           ),
         );
       case 2:
-        _addSampleResidents();
+        if (widget.house.population < widget.house.maxResidents) {
+          _showAddResidentDialog();
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text("Maksymalna liczba mieszkańców osiągnięta!")),
+          );
+        }
+        
       case 3:
         Navigator.of(context).push(
            MaterialPageRoute(builder: (context) => GeneratorPage(returnRoute: "/city")),
@@ -47,12 +54,99 @@ class _HousePageState extends State<HousePage> {
     }
   }
 
-  void _addSampleResidents() {
-    setState(() {
-      widget.house.addResident(Resident(name: "Anna", lastName: "Nowak-Kowalska", age: 28, city: widget.house.city, house: widget.house));
-      widget.house.addResident(Resident(name: "Jan", lastName: "Kowalski", age: 31, city: widget.house.city, house: widget.house));
-      widget.house.addResident(Resident(name: "Piotr", lastName: "Kowalski", age: 14, city: widget.house.city, house: widget.house));
+  Future<void> _showAddResidentDialog() async {
+    final TextEditingController nameController = TextEditingController();
+    final TextEditingController lastNameController = TextEditingController();
+    final TextEditingController ageController = TextEditingController();
+
+    final Map<String, dynamic>? residentData = await showDialog<Map<String, dynamic>> (
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text("Dodaj nowego mieszkańca"),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextField(
+                controller: nameController,
+                autofocus: true,
+                decoration: InputDecoration(labelText: "Imię"),
+              ),
+              TextField(
+                controller: lastNameController,
+                decoration: InputDecoration(labelText: "Nazwisko"),
+              ),
+              TextField(
+                controller: ageController,
+                decoration: InputDecoration(labelText: "Wiek"),
+                keyboardType: TextInputType.number,
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(null),
+              child: Text("Anuluj"),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                final name = nameController.text.trim();
+                final lastName = lastNameController.text.trim();
+                final age = int.tryParse(ageController.text.trim());
+
+                if (name.isNotEmpty && lastName.isNotEmpty && age != null) {
+                  Navigator.of(context).pop({
+                    "name": name,
+                    "lastName": lastName,
+                    "age": age,
+                  });
+                }
+                else {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text(
+                        "Nazwa mieszkańca, nazwisko i wiek są wymagane!",
+                        style: TextStyle(
+                          color: Theme.of(context).colorScheme.onError,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      backgroundColor: Theme.of(context).colorScheme.error,
+                      behavior: SnackBarBehavior.floating,
+                      margin: EdgeInsets.only(bottom: 20, left: 20, right: 20),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                    ),
+                  );
+                }
+              },
+              child: Text("Dodaj"),
+            ),
+          ],
+        );
+      }
+    );
+
+    Future.delayed(const Duration(milliseconds: 500), () {
+      nameController.dispose();
+      lastNameController.dispose();
+      ageController.dispose();
     });
+
+    if (residentData != null) {
+      setState(() {
+        widget.house.addResident(
+          Resident(
+            name: residentData["name"],
+            lastName: residentData["lastName"],
+            age: residentData["age"],
+            city: widget.house.city,
+            house: widget.house,
+          ),
+        );
+      });
+    }
   }
 
   Widget _buildHouseList() {
@@ -153,7 +247,17 @@ class _HousePageState extends State<HousePage> {
               ],
             ),
           ),
-          SizedBox(height: 20),
+          SizedBox(height: 5),
+          Text(
+            "Residents (${widget.house.population} / 8)",
+            style: GoogleFonts.quicksand(
+              fontSize: 14,
+              fontWeight: FontWeight.w500,
+              letterSpacing: 3.0,
+              color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.8),
+              )
+            ),
+          SizedBox(height: 5),
           for (var residentObject in widget.house.residents)
             ResidentTile(
               resident: residentObject,

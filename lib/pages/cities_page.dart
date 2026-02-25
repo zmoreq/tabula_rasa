@@ -139,13 +139,13 @@ class _CitiesPageState extends State<CitiesPage> {
           content: TextField(
             controller: nameController,
             autofocus: true,
-            decoration: InputDecoration(hintText: 'Nazwa miasta'),
+            decoration: InputDecoration(labelText: 'Nazwa miasta'),
           ),
           actions: [
             TextButton(
               child: Text('Anuluj'),
               onPressed: () {
-                Navigator.of(context).pop();
+                Navigator.of(context).pop(null);
               },
             ),
             ElevatedButton(
@@ -153,7 +153,29 @@ class _CitiesPageState extends State<CitiesPage> {
                 elevation: 0,
               ),
               onPressed: () {
-                Navigator.of(context).pop(nameController.text);
+                final input = nameController.text.trim();
+                if (input.isNotEmpty) {
+                  Navigator.of(context).pop(input);
+                }
+                else {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text(
+                        "Nazwa miasta nie może być pusta!",
+                        style: TextStyle(
+                          color: Theme.of(context).colorScheme.onError,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      backgroundColor: Theme.of(context).colorScheme.error,
+                      behavior: SnackBarBehavior.floating,
+                      margin: EdgeInsets.only(bottom: 20, left: 20, right: 20),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                    ),
+                  );
+                }
               },
               child: Text('Dodaj'),
             ),
@@ -161,6 +183,10 @@ class _CitiesPageState extends State<CitiesPage> {
         );
       },
     );
+    
+    Future.delayed(const Duration(milliseconds: 500), () {
+      nameController.dispose();
+    });
 
     if (cityName != null && cityName.isNotEmpty) {
       setState(() {

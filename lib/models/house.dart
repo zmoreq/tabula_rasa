@@ -6,6 +6,7 @@ class House {
   final City city;
   int days;
   List<Resident> residents = [];
+  int maxResidents = 8;
   int get population => residents.length;
 
   House({required this.name, required this.city, this.days = 0});

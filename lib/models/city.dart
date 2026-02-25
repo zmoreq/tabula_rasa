@@ -1,4 +1,3 @@
-
 import 'house.dart';
 
 class City {
@@ -7,7 +6,7 @@ class City {
 
   List<House> houses = [];
 
-  City({required this.name , required this.population, this.houses = const []});
+  City({required this.name , required this.population});
 
   Map<String, dynamic> toJson() {
     return {
@@ -18,11 +17,29 @@ class City {
   }
 
   factory City.fromJson(Map<String, dynamic> json) {
-    return City(
-      name: json['name'],
-      population: json['population'],
-      houses: (json['houses'] as List<dynamic>).map((houseJson) => House.fromJson(houseJson, City(name: json['name'], population: json['population']))).toList(),
+    City parsedCity = City(
+      name: json['name'] ?? "Nieznane miasto", 
+      population: json['population'] ?? 0,
     );
+
+    // KROK 2: Ładujemy domy i przypisujemy je do tego jednego, konkretnego miasta
+    if (json['houses'] != null) {
+      parsedCity.houses = (json['houses'] as List<dynamic>)
+          // Zauważ, że podajemy `parsedCity`, a nie tworzymy nowego City()!
+          .map((houseJson) => House.fromJson(houseJson, parsedCity))
+          .toList(); // .toList() gwarantuje nam otwartą, modyfikowalną listę
+    }
+
+    // Zwracamy poskładane miasto
+    return parsedCity;
+  }
+
+  void addHouse(House house) {
+    houses.add(house);
+  }
+
+  void removeHouse(House house) {
+    houses.remove(house);
   }
 
 }
