@@ -159,7 +159,7 @@ class _HousePageState extends State<HousePage> {
           Container(
             width: double.infinity,
             padding: EdgeInsets.only(
-            bottom: 40,
+            bottom: 30,
             left: 20, 
             right: 20
           ),

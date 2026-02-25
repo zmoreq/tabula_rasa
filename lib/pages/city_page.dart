@@ -123,9 +123,8 @@ class _CityPageState extends State<CityPage> {
         children: [
           Container(
             width: double.infinity, // 1. Rozciągnij na całą szerokość
-          padding: EdgeInsets.only(
-            top: 20, 
-            bottom: 40, // Dużo miejsca na dole, żeby zaokrąglenie ładnie wyglądało
+            padding: EdgeInsets.only(
+            bottom: 30, // Dużo miejsca na dole, żeby zaokrąglenie ładnie wyglądało
             left: 20, 
             right: 20
           ),
@@ -172,6 +171,15 @@ class _CityPageState extends State<CityPage> {
 
                 setState(() {}); // Odświeżamy widok po powrocie z HousePage, żeby pokazać ewentualne zmiany
               },
+              onAddDay: () {
+                setState(() {
+                  houseObject.incrementDays();
+                  for (var resident in houseObject.residents) {
+                    resident.incrementDays();
+                  }
+                });
+                DataService.saveData(); // Zapisz zmiany po dodaniu dnia
+              },
               onDelete: () {
                 setState(() {
                   widget.city.removeHouse(houseObject);
@@ -182,7 +190,7 @@ class _CityPageState extends State<CityPage> {
                 print("Edit ${houseObject.name}");
               },
             ),
-           SizedBox(height: 80), // Ważne: Pusty odstęp na dole, żeby ostatni dom nie chował się za czymś
+           SizedBox(height: 80),
         ],
       ),
     );
@@ -191,7 +199,6 @@ class _CityPageState extends State<CityPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      // AppBar może zostać pusty lub z ustawieniami
       appBar: AppBar(
         backgroundColor: Theme.of(context).colorScheme.onPrimary,
         actions: [
@@ -199,17 +206,16 @@ class _CityPageState extends State<CityPage> {
             icon: Icon(PhosphorIcons.gear(
               PhosphorIconsStyle.bold
             )),
-            onPressed: () {}, // Tu będą ustawienia
+            onPressed: () {},
           )
         ],
       ),
       
-      body: _buildHouseList(), // Wyświetlamy odpowiedni ekran
+      body: _buildHouseList(),
 
-      // --- TUTAJ JEST TWOJA NOWA NAWIGACJA ---
       bottomNavigationBar: CustomBottomNav(
         currentIndex: _selectedIndex,
-        onTap: _onTapped, // Przekazujesz funkcję z CityPage
+        onTap: _onTapped,
       ),
     );
   }

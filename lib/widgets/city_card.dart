@@ -64,6 +64,7 @@ void _showCityOptions(BuildContext context) {
         clipBehavior: Clip.antiAlias,
         child: InkWell(
           onTap: onTap,
+          onLongPress: () => _showCityOptions(context),
           splashColor: Colors.black.withAlpha(50),
           child: Column(
             children: [

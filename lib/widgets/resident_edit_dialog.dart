@@ -82,7 +82,6 @@ class _ResidentEditDialogState extends State<ResidentEditDialog> {
               ],
             ),
             Divider(color: Theme.of(context).colorScheme.outlineVariant),
-            
             Expanded(
               child: SingleChildScrollView(
                 child: Column(
