@@ -19,4 +19,6 @@ class DataService {
     String citiesJson = jsonEncode(cities.map((city) => city.toJson()).toList());
     await prefs.setString('cities', citiesJson);
   }
+
+  
 }

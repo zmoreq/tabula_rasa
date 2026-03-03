@@ -175,7 +175,7 @@ class _CitiesPageState extends State<CitiesPage> {
 
     if (cityName != null && cityName.isNotEmpty) {
       setState(() {
-        DataService.cities.add(City(name: cityName, population: 0));
+        DataService.cities.add(City(name: cityName));
       });
       DataService.saveData(); // Zapisz od razu po dodaniu nowego miasta
     }

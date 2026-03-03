@@ -2,24 +2,25 @@ import 'house.dart';
 
 class City {
   String name;
-  final int population;
-
+  
   List<House> houses = [];
 
-  City({required this.name , required this.population});
+  City({required this.name });
+
+  int get population {
+    return houses.fold(0, (sum, house) => sum + house.population);
+  }
 
   Map<String, dynamic> toJson() {
     return {
       'name': name,
-      'population': population,
       'houses': houses.map((house) => house.toJson()).toList(),
     };
   }
 
   factory City.fromJson(Map<String, dynamic> json) {
     City parsedCity = City(
-      name: json['name'] ?? "Nieznane miasto", 
-      population: json['population'] ?? 0,
+      name: json['name'] ?? "Nieznane miasto"
     );
 
     // KROK 2: Ładujemy domy i przypisujemy je do tego jednego, konkretnego miasta
@@ -41,5 +42,7 @@ class City {
   void removeHouse(House house) {
     houses.remove(house);
   }
+
+
 
 }
