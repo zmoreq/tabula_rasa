@@ -18,8 +18,26 @@ class _ResidentEditDialogState extends State<ResidentEditDialog> {
   late TextEditingController ageController;
 
   late String aspiration;
-  late String? eyeColor;
-  late String? hairColor;
+  late Color? eyeColor;
+  late Color? hairColor;
+
+  // 1. Zdefiniujmy słowniki, by powiązać nazwę z rzeczywistym kolorem!
+  final Map<String, Color> eyeColorOptions = {
+    "Brązowe": Colors.brown,
+    "Niebieskie": Colors.blue,
+    "Zielone": Colors.green,
+    "Szare": Colors.grey,
+    "Czerwone": Colors.red,
+  };
+
+  final Map<String, Color> hairColorOptions = {
+    "Czarne": Colors.black,
+    "Brązowe": Colors.brown,
+    "Blond": Colors.yellow.shade700, // Lepszy odcień blondu
+    "Rude": Colors.orange,
+    "Szare": Colors.grey,
+    "Białe": Colors.white,
+  };
 
   @override
   void initState() {
@@ -30,6 +48,7 @@ class _ResidentEditDialogState extends State<ResidentEditDialog> {
     ageController = TextEditingController(text: widget.resident.age.toString());
 
     aspiration = widget.resident.traits.aspiration;
+    // Kopiujemy aktualne wartości
     eyeColor = widget.resident.traits.eyeColor;
     hairColor = widget.resident.traits.hairColor;
   }
@@ -39,8 +58,18 @@ class _ResidentEditDialogState extends State<ResidentEditDialog> {
     nameController.dispose();
     lastNameController.dispose();
     ageController.dispose();
-
     super.dispose();
+  }
+
+  // Funkcja pomocnicza: Znajduje nazwę (klucz) na podstawie koloru, żeby ustawić initialValue.
+  String? _getNameForColor(Color? targetColor, Map<String, Color> options) {
+    if (targetColor == null) return null;
+    for (var entry in options.entries) {
+      if (entry.value == targetColor) {
+        return entry.key; // Zwróć "Brązowe", "Blond" itp.
+      }
+    }
+    return null; // Zwróć null, jeśli nie znaleziono
   }
 
   @override
@@ -48,13 +77,13 @@ class _ResidentEditDialogState extends State<ResidentEditDialog> {
     return Dialog(
       insetPadding: const EdgeInsets.all(10),
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(24), 
+        borderRadius: BorderRadius.circular(24),
       ),
       backgroundColor: Theme.of(context).colorScheme.surfaceContainerLow,
       child: Container(
         padding: const EdgeInsets.all(20),
         constraints: BoxConstraints(
-          maxHeight: MediaQuery.of(context).size.height * 0.75, 
+          maxHeight: MediaQuery.of(context).size.height * 0.75,
         ),
         child: Column(
           children: [
@@ -64,7 +93,7 @@ class _ResidentEditDialogState extends State<ResidentEditDialog> {
                 Row(
                   children: [
                     Icon(PhosphorIcons.info(PhosphorIconsStyle.bold), color: Theme.of(context).colorScheme.onSurface),
-                    SizedBox(width: 10),
+                    const SizedBox(width: 10),
                     Text(
                       "Karta Sima",
                       style: GoogleFonts.quicksand(
@@ -77,7 +106,7 @@ class _ResidentEditDialogState extends State<ResidentEditDialog> {
                 ),
                 IconButton(
                   icon: Icon(PhosphorIcons.x(PhosphorIconsStyle.bold), color: Theme.of(context).colorScheme.onSurface),
-                  onPressed: () => Navigator.of(context).pop(false), // Zamykamy bez zapisu
+                  onPressed: () => Navigator.of(context).pop(false),
                 ),
               ],
             ),
@@ -102,7 +131,7 @@ class _ResidentEditDialogState extends State<ResidentEditDialog> {
                           ),
                           child: Icon(PhosphorIcons.user(PhosphorIconsStyle.bold), size: 60, color: Theme.of(context).colorScheme.onSurface),
                         ),
-                        SizedBox(width: 20),
+                        const SizedBox(width: 20),
                         Expanded(
                           child: Column(
                             children: [
@@ -110,7 +139,7 @@ class _ResidentEditDialogState extends State<ResidentEditDialog> {
                                 controller: nameController,
                                 decoration: const InputDecoration(labelText: "Imię", labelStyle: TextStyle(fontWeight: FontWeight.bold)),
                               ),
-                              SizedBox(height: 10),
+                              const SizedBox(height: 10),
                               TextField(
                                 controller: lastNameController,
                                 decoration: const InputDecoration(labelText: "Nazwisko", labelStyle: TextStyle(fontWeight: FontWeight.bold)),
@@ -126,10 +155,10 @@ class _ResidentEditDialogState extends State<ResidentEditDialog> {
                       keyboardType: TextInputType.number,
                       decoration: const InputDecoration(labelText: "Wiek", labelStyle: TextStyle(fontWeight: FontWeight.bold)),
                     ),
-                    
+
                     const SizedBox(height: 25),
                     _buildSectionTitle("Cechy i Wygląd"),
-                    
+
                     DropdownButtonFormField<String>(
                       initialValue: aspiration,
                       decoration: const InputDecoration(labelText: "Aspiracja"),
@@ -143,29 +172,35 @@ class _ResidentEditDialogState extends State<ResidentEditDialog> {
                       },
                     ),
                     const SizedBox(height: 10),
-                    
+
+                    // 2. Naprawiony Dropdown: Oczy
                     DropdownButtonFormField<String>(
-                      initialValue: eyeColor,
+                      // Odnajdujemy nazwę ("Brązowe"), która odpowiada aktualnemu kolorowi (Colors.brown)
+                      initialValue: _getNameForColor(eyeColor, eyeColorOptions),
                       decoration: const InputDecoration(labelText: "Kolor oczu"),
-                      items: ["Brązowe", "Niebieskie", "Zielone", "Szare", "Czerwone"]
+                      // Używamy naszych kluczy z mapy jako opcji
+                      items: eyeColorOptions.keys
                           .map((String val) => DropdownMenuItem(value: val, child: Text(val)))
                           .toList(),
                       onChanged: (val) {
                         setState(() {
-                          if (val != null) eyeColor = val;
+                           // Kiedy ktoś wybierze "Szare" przypisz do zmiennej Colors.grey
+                          if (val != null) eyeColor = eyeColorOptions[val];
                         });
                       },
                     ),
                     const SizedBox(height: 10),
+
+                    // 3. Naprawiony Dropdown: Włosy
                     DropdownButtonFormField<String>(
-                      initialValue: hairColor,
+                      initialValue: _getNameForColor(hairColor, hairColorOptions),
                       decoration: const InputDecoration(labelText: "Kolor włosów"),
-                      items: ["Czarne", "Brązowe", "Blond", "Rude", "Szare", "Białe"]
+                      items: hairColorOptions.keys
                           .map((String val) => DropdownMenuItem(value: val, child: Text(val)))
                           .toList(),
                       onChanged: (val) {
                         setState(() {
-                          if (val != null) hairColor = val;
+                          if (val != null) hairColor = hairColorOptions[val];
                         });
                       },
                     ),
@@ -175,7 +210,6 @@ class _ResidentEditDialogState extends State<ResidentEditDialog> {
               ),
             ),
 
-            // --- PRZYCISK ZAPISU (Zawsze na dole) ---
             SizedBox(
               width: double.infinity,
               child: ElevatedButton(
@@ -223,17 +257,16 @@ class _ResidentEditDialogState extends State<ResidentEditDialog> {
   void _saveChanges() {
     final newAge = int.tryParse(ageController.text.trim());
     if (nameController.text.isEmpty || lastNameController.text.isEmpty || newAge == null) {
-      // Możesz tu rzucić błąd
       return;
     }
 
     widget.resident.name = nameController.text.trim();
     widget.resident.lastName = lastNameController.text.trim();
     widget.resident.age = newAge;
-    
+
     widget.resident.traits.aspiration = aspiration;
-    widget.resident.traits.eyeColor = eyeColor?.trim();
-    widget.resident.traits.hairColor = hairColor?.trim();
+    widget.resident.traits.eyeColor = eyeColor;
+    widget.resident.traits.hairColor = hairColor;
 
     Navigator.of(context).pop(true);
   }
