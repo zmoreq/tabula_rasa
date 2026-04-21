@@ -13,36 +13,52 @@ class SimTraits {
     this.zodiacSign,
   });
 
-  // Zapisywanie do JSON
+  static const Map<String, Color> _colorMap = {
+    'brown': Colors.brown,
+    'blue': Colors.blue,
+    'green': Colors.green,
+    'grey': Colors.grey,
+    'red': Colors.red,
+    'black': Colors.black,
+    'white': Colors.white,
+    'orange': Colors.orange,
+    'blond': Color(0xFFF9A825), // Colors.yellow.shade700
+  };
+
+  static String? _colorToString(Color? color) {
+    if (color == null) return null;
+    for (var entry in _colorMap.entries) {
+      if (entry.value == color) return entry.key;
+    }
+    return null;
+  }
+
+  static Color? _stringToColor(dynamic value) {
+    if (value == null) return null;
+    if (value is String) return _colorMap[value];
+    // fallback dla starych zapisów (int)
+    if (value is num) {
+      int colorInt = value.toInt();
+      for (var entry in _colorMap.entries) {
+        if (entry.value.toARGB32() == colorInt) return entry.value;
+      }
+    }
+    return null;
+  }
+
   Map<String, dynamic> toJson() {
     return {
-      'eyeColor': eyeColor?.toARGB32(),
-      'hairColor': hairColor?.toARGB32(),
+      'eyeColor': _colorToString(eyeColor),
+      'hairColor': _colorToString(hairColor),
       'aspiration': aspiration,
       'zodiacSign': zodiacSign,
     };
   }
 
-  // Odczytywanie z JSON
   factory SimTraits.fromJson(Map<String, dynamic> json) {
-    Color? parseColor(dynamic colorData) {
-      if (colorData == null) return null; // Brak koloru
-      
-      if (colorData is int) {
-        return Color(colorData); // IDEALNY SCENARIUSZ (Nowy kod)
-      } 
-      
-      if (colorData is String) {
-        // SCENARIUSZ BŁĘDU (Stary zapis). 
-        // Zamiast wysadzać apkę (as int), po prostu resetujemy kolor na null.
-        return null; 
-      }
-      
-      return null;
-    }
     return SimTraits(
-      eyeColor: parseColor(json['eyeColor']),
-      hairColor: parseColor(json['hairColor']),
+      eyeColor: _stringToColor(json['eyeColor']),
+      hairColor: _stringToColor(json['hairColor']),
       aspiration: json['aspiration'] ?? "Nieznana",
       zodiacSign: json['zodiacSign'],
     );

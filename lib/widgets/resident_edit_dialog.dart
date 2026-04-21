@@ -33,7 +33,7 @@ class _ResidentEditDialogState extends State<ResidentEditDialog> {
   final Map<String, Color> hairColorOptions = {
     "Czarne": Colors.black,
     "Brązowe": Colors.brown,
-    "Blond": Colors.yellow.shade700, // Lepszy odcień blondu
+    "Blond": Color(0xFFF9A825), // zamiast Colors.yellow.shade700
     "Rude": Colors.orange,
     "Szare": Colors.grey,
     "Białe": Colors.white,
